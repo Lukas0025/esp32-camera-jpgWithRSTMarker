@@ -39,6 +39,9 @@ namespace jpge
             // 2 = H2V1 subsampling (YCbCr 2x1x1, 4 blocks per MCU)
             // 3 = H2V2 subsampling (YCbCr 4x1x1, 6 blocks per MCU-- very common)
             subsampling_t m_subsampling;
+        
+            //use restart markers
+            bool m_withRst = false;
     };
     
     // Output stream abstract class - used by the jpeg_encoder class to write to the output stream.
@@ -101,6 +104,9 @@ namespace jpge
             uint32 m_bit_buffer;
             uint m_bits_in;
             uint8 m_pass_num;
+            unsigned m_lineNum;
+            
+            bool m_withRst;
             bool m_all_stream_writes_succeeded;
 
             bool jpg_open(int p_x_res, int p_y_res, int src_channels);
