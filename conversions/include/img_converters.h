@@ -66,10 +66,11 @@ bool frame2jpg_cb(camera_fb_t * fb, uint8_t quality, jpg_out_cb cb, void * arg);
  * @param out       Pointer to be populated with the address of the resulting buffer.
  *                  You MUST free the pointer once you are done with it.
  * @param out_len   Pointer to be populated with the length of the output buffer
+ * @param useRst    Use rst markers in jpg
  *
  * @return true on success
  */
-bool fmt2jpg(uint8_t *src, size_t src_len, uint16_t width, uint16_t height, pixformat_t format, uint8_t quality, uint8_t ** out, size_t * out_len);
+bool fmt2jpg(uint8_t *src, size_t src_len, uint16_t width, uint16_t height, pixformat_t format, uint8_t quality, uint8_t ** out, size_t * out_len, bool useRst = false);
 
 /**
  * @brief Convert camera frame buffer to JPEG buffer
