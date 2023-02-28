@@ -88,7 +88,7 @@ static IRAM_ATTR void convert_line_format(uint8_t * src, pixformat_t format, uin
     }
 }
 
-bool convert_image(uint8_t *src, uint16_t width, uint16_t height, pixformat_t format, uint8_t quality, jpge::output_stream *dst_stream)
+bool convert_image(uint8_t *src, uint16_t width, uint16_t height, pixformat_t format, uint8_t quality, jpge::output_stream *dst_stream, bool useRst = false)
 {
     int num_channels = 3;
     jpge::subsampling_t subsampling = jpge::H2V2;
@@ -107,6 +107,7 @@ bool convert_image(uint8_t *src, uint16_t width, uint16_t height, pixformat_t fo
     jpge::params comp_params = jpge::params();
     comp_params.m_subsampling = subsampling;
     comp_params.m_quality = quality;
+    comp_params.m_useRst  = useRst;
 
     jpge::jpeg_encoder dst_image;
 
@@ -205,7 +206,7 @@ public:
     }
 };
 
-bool fmt2jpg(uint8_t *src, size_t src_len, uint16_t width, uint16_t height, pixformat_t format, uint8_t quality, uint8_t ** out, size_t * out_len)
+bool fmt2jpg(uint8_t *src, size_t src_len, uint16_t width, uint16_t height, pixformat_t format, uint8_t quality, uint8_t ** out, size_t * out_len, bool useRst = false)
 {
     //todo: allocate proper buffer for holding JPEG data
     //this should be enough for CIF frame size
@@ -219,7 +220,7 @@ bool fmt2jpg(uint8_t *src, size_t src_len, uint16_t width, uint16_t height, pixf
     }
     memory_stream dst_stream(jpg_buf, jpg_buf_len);
 
-    if(!convert_image(src, width, height, format, quality, &dst_stream)) {
+    if(!convert_image(src, width, height, format, quality, &dst_stream, useRst)) {
         free(jpg_buf);
         return false;
     }
