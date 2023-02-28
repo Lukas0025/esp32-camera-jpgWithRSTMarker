@@ -14,7 +14,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <stdio.h>F
 #include <string.h>
 #include <malloc.h>
 #include "esp_heap_caps.h"
@@ -39,7 +39,7 @@ namespace jpge {
     static inline void jpge_free(void *p) { free(p); }
 
     // Various JPEG enums and tables.
-    enum { M_SOF0 = 0xC0, M_DHT = 0xC4, M_SOI = 0xD8, M_EOI = 0xD9, M_SOS = 0xDA, M_DQT = 0xDB, M_APP0 = 0xE0 };
+    enum { M_SOF0 = 0xC0, M_DHT = 0xC4, M_RST0 = 0xD0, M_RST1 = 0xD1, M_RST2 = 0xD2, M_RST3 = 0xD3, M_RST4 = 0xD4, M_RST5 = 0xD5, M_RST6 = 0xD6, M_RST7 = 0xD7, M_SOI = 0xD8, M_EOI = 0xD9, M_SOS = 0xDA, M_DQT = 0xDB, M_DRI = 0xDD, M_APP0 = 0xE0 };
     enum { DC_LUM_CODES = 12, AC_LUM_CODES = 256, DC_CHROMA_CODES = 12, AC_CHROMA_CODES = 256, MAX_HUFF_SYMBOLS = 257, MAX_HUFF_CODESIZE = 32 };
 
     static const uint8 s_zag[64] = { 0,1,8,16,9,2,3,10,17,24,32,25,18,11,4,5,12,19,26,33,40,48,41,34,27,20,13,6,7,14,21,28,35,42,49,56,57,50,43,36,29,22,15,23,30,37,44,51,58,59,52,45,38,31,39,46,53,60,61,54,47,55,62,63 };
@@ -644,6 +644,7 @@ namespace jpge {
         m_bits_in = 0;
         m_mcu_y_ofs = 0;
         m_pass_num = 2;
+        m_lineNum = 0;
         memset(m_last_dc_val, 0, 3 * sizeof(m_last_dc_val[0]));
 
         // Emit all markers at beginning of image file.
@@ -652,6 +653,10 @@ namespace jpge {
         emit_dqt();
         emit_sof();
         emit_dhts();
+        if (m_withRst) {
+            emit_marker(M_DRI);
+            emit_word((uint16_t) m_mcus_per_row);
+        }
         emit_sos();
 
         return m_all_stream_writes_succeeded;
@@ -720,6 +725,18 @@ namespace jpge {
                 }
             } else {
                 load_mcu(pScanline);
+                if (m_withRst) {
+                         if (m_lineNum % 8 == 0) emit_marker(M_RST0);
+                    else if (m_lineNum % 8 == 1) emit_marker(M_RST1);
+                    else if (m_lineNum % 8 == 2) emit_marker(M_RST2);
+                    else if (m_lineNum % 8 == 3) emit_marker(M_RST3);
+                    else if (m_lineNum % 8 == 4) emit_marker(M_RST4);
+                    else if (m_lineNum % 8 == 5) emit_marker(M_RST5);
+                    else if (m_lineNum % 8 == 6) emit_marker(M_RST6);
+                    else if (m_lineNum % 8 == 7) emit_marker(M_RST7);
+                    
+                    m_lineNum++;
+                }
             }
         }
         return m_all_stream_writes_succeeded;
